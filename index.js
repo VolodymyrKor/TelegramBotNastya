@@ -39,6 +39,7 @@ const PhotosScrs = {
 // Handlers
 //-----------------------------------------------------------------------------
 bot.onText(/\/start/, msg => {
+    console.log(`User with name ${msg.from.first_name} ${msg.from.last_name} start conversation with bot`)
     sendGreeting(msg)
 })
 

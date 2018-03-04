@@ -1,28 +1,32 @@
 //-----------------------------------------------------------------------------
 // Modules  
 //-----------------------------------------------------------------------------
-const TelegramBot = require('node-telegram-bot-api')
 const fs = require('fs')
 const _ = require('lodash')
 
-//-----------------------------------------------------------------------------
-// Constants
-//-----------------------------------------------------------------------------
-const TOKEN = '551340768:AAGlgdsc5Pt-AabcXh62rIgoEbWq56nfk4k'
+const constants = require('./Helpers/constants')
+const botConfiguration = require('./botConfig');
+const bot = botConfiguration.getBotInstance();
 
-const bot = new TelegramBot(TOKEN, {
-    polling: true
-})
+const MAIN_BUTTON_LABELS = {
+    hello: 'Привітатись)',
+    speak: 'Поговорити',
+    hug: 'Обійняти',
+    kiss: 'Поцілувати',
+    miss: 'Я скучила(',
+    other: 'Інше...'
+}
+
 
 const KB = {
-    hello   : 'Привітатись',
-    hug     : 'Обійняти',
-    kiss    : 'Поцілувати',
-    scratch : 'Почухати:)',
-    miss    : 'Я скучила(',
-    back    : 'Назад',
+    hello: 'Привітатись',
+    hug: 'Обійняти',
+    kiss: 'Поцілувати',
+    scratch: 'Почухати:)',
+    miss: 'Я скучила(',
+    back: 'Назад',
     together: 'Разом',
-    vova    : 'Твоя'
+    vova: 'Твоя'
 }
 
 const PhotosScrs = {
@@ -41,20 +45,6 @@ const PhotosScrs = {
 bot.onText(/\/start/, msg => {
     console.log(`User with name ${msg.from.first_name} ${msg.from.last_name} start conversation with bot`)
     sendGreeting(msg)
-})
-
-bot.on('callback_query', query => {
-    
-    bot.answerCallbackQuery({
-        callback_query_id: query.id,
-        text: `Ти вибрала ${query.data}`
-    })
-
-    const html = `<b>${query.data}</b> can be <em>better</em>`
-
-    bot.sendMessage(query.message.chat.id, html, {
-        parse_mode: 'HTML'
-    })
 })
 
 bot.on('message', msg => {
@@ -81,13 +71,55 @@ bot.on('message', msg => {
         case KB.vova:
         case KB.together:
             sendPhotoByName(msg)
-            break;            
+            break;
     }
+})
+
+
+
+bot.on('callback_query', query => {
+
+    bot.answerCallbackQuery({
+        callback_query_id: query.id,
+        text: `Ти вибрала ${query.data}`
+    })
+
+    const html = `<b>${query.data}</b> can be <em>better</em>`
+
+    bot.sendMessage(query.message.chat.id, html, {
+        parse_mode: 'HTML'
+    })
 })
 
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
+function sendGreeting(msg) {
+    const answer = `Привіт, ${msg.from.first_name}\nЩо ти бажаєш зробити?`
+
+    bot.sendMessage(msg.chat.id, answer,
+        botConfiguration.buildMarkup([
+            [MAIN_BUTTON_LABELS.hello, MAIN_BUTTON_LABELS.speak, MAIN_BUTTON_LABELS.hug],
+            [MAIN_BUTTON_LABELS.kiss, MAIN_BUTTON_LABELS.miss, MAIN_BUTTON_LABELS.other]
+        ], constants.KEYBOARD_TYPES.keyboard))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function sendPhotoToUser(chatId) {
     bot.sendMessage(chatId, `Вибери тип фото: `, {
         reply_markup: {
@@ -99,35 +131,35 @@ function sendPhotoToUser(chatId) {
     })
 }
 
-function sendGreeting(msg, sayHello = true) {
-    const answer = sayHello ? `Привіт, ${msg.from.first_name}\nЩо ти бажаєш зробити?` : `Що ти бажаєш зробити?`
+// function sendGreeting(msg, sayHello = true) {
+//     const answer = sayHello ? `Привіт, ${msg.from.first_name}\nЩо ти бажаєш зробити?` : `Що ти бажаєш зробити?`
 
-    bot.sendMessage(msg.chat.id, answer, {
-        reply_markup: {
-            keyboard: [
-                [KB.hello, KB.scratch, KB.miss],
-                [KB.hug, KB.kiss]
-            ]
-        }
-    })
-}
+//     bot.sendMessage(msg.chat.id, answer, {
+//         reply_markup: {
+//             keyboard: [
+//                 [KB.hello, KB.scratch, KB.miss],
+//                 [KB.hug, KB.kiss]
+//             ]
+//         }
+//     })
+// }
 
 function sendPhotoByName(msg) {
     const chatId = msg.chat.id
     const photoName = msg.text
     const srcs = PhotosScrs[photoName]
     const src = srcs[_.random(0, srcs.length - 1)]
-    
+
     bot.sendMessage(chatId, 'Завантажую....')
 
-    fs.readFile(`${__dirname}/photo/${src}`, (error, picture) => {
-        if(error) throw new Error(error)
+    fs.readFile(`${__dirname}/../photo/${src}`, (error, picture) => {
+        if (error) throw new Error(error)
 
         bot.sendPhoto(chatId, picture).then(() => {
-            bot.sendMessage(chatId, 'Відправлено)')            
+            bot.sendMessage(chatId, 'Відправлено)')
         })
     })
-    
+
 }
 
 function sendHelloMessages(msg) {
@@ -135,19 +167,15 @@ function sendHelloMessages(msg) {
 
     bot.sendMessage(chatId, 'Як в тебе справи?', {
         reply_markup: {
-            inline_keyboard:[
-                [
-                    {
-                        text: 'Добре',
-                        callback_data: 'GOOD'
-                    }
-                ],
-                [
-                    {
-                        text: 'Не дуже',
-                        callback_data: 'CAN BE'
-                    }
-                ]
+            inline_keyboard: [
+                [{
+                    text: 'Добре',
+                    callback_data: 'GOOD'
+                }],
+                [{
+                    text: 'Не дуже',
+                    callback_data: 'CAN BE'
+                }]
             ]
         }
     })

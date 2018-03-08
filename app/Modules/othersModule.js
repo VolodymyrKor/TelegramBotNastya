@@ -69,7 +69,7 @@ function chooseMoneyType(msg) {
 function sendMoneyCourse(query) {
     bot.answerCallbackQuery({
         callback_query_id: query.id,
-        text: `Відповідь у форматі: 1${query.data} = X грн.`
+        text: `Відповідь у форматі: 1 ${query.data} = X грн.`
     });
     
     let data;
@@ -83,7 +83,7 @@ function sendMoneyCourse(query) {
             if(response.statusCode === 200) {
                 data = JSON.parse(body);
     
-                const uaMoney = Math.round(data.rates[symbol], 2);
+                const uaMoney = precisionRound(data.rates[symbol], 2);
                 const html = `<b>1 ${query.data}</b> = <em>${uaMoney} UAH</em>`;
     
                 bot.sendMessage(query.message.chat.id, html, {
@@ -91,6 +91,11 @@ function sendMoneyCourse(query) {
                 })
             }
         });
+}
+
+function precisionRound(number, precision) {
+    let factor = Math.pow(10, precision);
+    return Math.round(number * factor) / factor;
 }
 
 //-----------------------------------------------------------------------------

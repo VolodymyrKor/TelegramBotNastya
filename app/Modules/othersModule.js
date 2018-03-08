@@ -83,7 +83,8 @@ function sendMoneyCourse(query) {
             if(response.statusCode === 200) {
                 data = JSON.parse(body);
     
-                const html = `<b>1 ${query.data}</b> = <em>${data.rates[symbol]}</em>`;
+                const uaMoney = Math.round(data.rates[symbol], 2);
+                const html = `<b>1 ${query.data}</b> = <em>${uaMoney} UAH</em>`;
     
                 bot.sendMessage(query.message.chat.id, html, {
                     parse_mode: 'HTML'

@@ -4,5 +4,9 @@ module.exports = {
     KEYBOARD_TYPES: {
         keyboard: 'keyboard',
         inline_keyboard: 'inline_keyboard'
+    },
+    
+    GENERAL_BUTTON_LABELS: {
+        backToMain: 'На головну'
     }
-}
+};

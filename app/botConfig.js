@@ -1,8 +1,8 @@
-const TelegramBot = require('node-telegram-bot-api')
-const constants = require('./Helpers/constants')
+const TelegramBot = require('node-telegram-bot-api');
+const constants = require('./Helpers/constants');
 
-var botInstance;
-var botIsStarted = false;
+let botInstance;
+let botIsStarted = false;
 
 module.exports.getBotInstance = () => {
     if (!botIsStarted) {
@@ -12,12 +12,12 @@ module.exports.getBotInstance = () => {
         })
     }
     return botInstance;
-}
+};
 
-module.exports.buildMarkup = (keyboard, keyboardType) => {
+module.exports.buildMarkup = (keyboard, keyboardType = 'keyboard') => {
     return {
         reply_markup: {
             [keyboardType]: keyboard
         }
     }
-}
+};
